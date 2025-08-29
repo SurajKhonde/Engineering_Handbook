@@ -92,3 +92,79 @@ db.collection.deleteMany({ country: "India" });
 ```js
 db.collection.drop()
 ```
+
+#### 🔹 1. $sort
+ - Used to order documents.
+
+Syntax:
+```js
+{ $sort: { fieldName: 1 } }   // ascending
+{ $sort: { fieldName: -1 } }  // descending
+```
+
+#### 🔹 2. $limit
+Used to restrict number of documents in result.
+Example:
+```js
+
+db.users.aggregate([
+  { $sort: { age: -1 } },
+  { $limit: 5 } // top 5 oldest
+])
+```
+
+### 🔹 3. $sum
+Used inside $group to add values or count docs.
+
+- Two main patterns:
+
+```js
+{ $sum: "$field" } // add up values of field
+{ $sum: 1 }        // just count docs
+db.orders.aggregate([
+  { $group: { _id: "$status", total: { $sum: 1 } } }
+])
+```
+### 🔹 4. $count
+
+- Shortcut stage to count documents in pipeline.
+```js
+db.users.aggregate([
+  { $match: { country: "India" } },
+  { $count: "totalUsers" }
+])
+```
+⚠️ Difference:
+- $sum:1 → used inside $group
+- $count → standalone stage at the end.
+
+### 🔹 5. $size
+- Used to get the length of an array.
+
+✅ Works in $project (or $addFields), not in $match.
+Example:
+```js
+db.users.aggregate([
+  { $project: { name: 1, favCount: { $size: "$favoriteSongs" } } }
+])
+```
+
+⚠️ If array is missing or null, $size will throw error → we often use $ifNull.
+
+#### 🔹 6. $unwind
+- If one user has 3 songs → becomes 3 rows.
+- Flattens array → one document per element.
+Example:
+```js
+db.users.aggregate([
+  { $unwind: "$favoriteSongs" }
+])
+```
+### 🔹 7. $exists
+- Used in filters (find or $match), not in aggregation projection.
+- Checks if field exists.
+Example:
+```js
+db.users.find({ email: { $exists: true } })
+db.users.find({ email: { $exists: false } }) // users without email
+```
