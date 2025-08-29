@@ -477,7 +477,7 @@ db.users.find({
 ```js
 db.users.aggregate([
   // Break the favoriteSongs array into individual docs
-  { $unwind: "$favoriteSongs" },
+  { $unwind:"$favoriteSongs" },
   {
     $group: {
       _id: "$country",
@@ -490,12 +490,41 @@ db.users.aggregate([
 ])
 ```
 
-Find average number of favorite songs per user.
-
-Count how many users like more than 5 songs.
-
-Find the distribution of favoriteSongs array length.
-
+- **Find average number of favorite songs per user.**
+```js
+db.users.aggregate([
+  {
+    $project: {
+      numFavorites: { $size: "$favoriteSongs" }
+    }
+  },
+  {
+    $group: {
+      _id: null,
+      avgFavoritesPerUser: { $avg: "$numFavorites" }
+    }
+  }
+])
+```
+- **Find the distribution of favoriteSongs array length.**
+```js
+db.users.aggregate([
+  {
+    $project: {
+      favoriteCount: { $size: "$favoriteSongs" }
+    }
+  },
+  {
+    $group: {
+      _id: "$favoriteCount",
+      userCount: { $sum: 1 }
+    }
+  },
+  {
+    $sort: { _id: 1 }
+  }
+])
+```
 5️⃣ $lookup (Joins / Populate)
 
 Lookup favoriteSongs → get song details for each user.
