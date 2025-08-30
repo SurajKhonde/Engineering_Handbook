@@ -1,6 +1,0 @@
-Sort
-limit
-when sum , count, size
-unwind
-is size only used project
-exists

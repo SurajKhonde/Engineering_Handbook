@@ -525,27 +525,281 @@ db.users.aggregate([
   }
 ])
 ```
-5️⃣ $lookup (Joins / Populate)
+### 5️⃣ $lookup (Joins / Populate)
 
-Lookup favoriteSongs → get song details for each user.
+- **Lookup favoriteSongs → get song details for each user.**
+```js
+db.users.aggregate([
+  {
+    $lookup: {
+      from: "songs",             
+      localField: "favoriteSongs", 
+      foreignField: "_id",        
+      as: "songDetails"        
+    }
+  },
+  {
+    $project: {
+      name: 1,             
+      songDetails: 1      
+    }
+  }
+])
 
-Lookup favoriteSinger → get singer details for each user.
+```
+- **Lookup favoriteSinger → get singer details for each user.**
+```js
+db.useraggregate([
+  { $lookup: {
+      from: "singers",             
+      localField: "favoriteSinger", 
+      foreignField: "_id",        
+      as: "singerDetails"        
+    }
+  },{
+     $project:{
+      name: 1,             
+      singerDetails: 1
+     }
+  }
+])
+```
+- **Find users with singer info embedded via $lookup.**
+    - MongoDB allows nested lookups by using the $lookup.pipeline option.
+```js
+db.users.aggregate([
+  {
+    $lookup: {
+      from: "songs",                 // join with songs collection
+      localField: "favoriteSongs",   // user’s array of songIds
+      foreignField: "_id",           // match song _id
+      as: "songDetails",
+      pipeline: [                    // NEW: nested lookup for singers
+        {
+          $lookup: {
+            from: "singers",          // join with singers collection
+            localField: "singerId",   // field in songs
+            foreignField: "_id",      // match singer _id
+            as: "singerInfo"
+          }
+        },
+        {
+          $unwind: "$singerInfo"      // optional: flatten singer array (1 singer per song)
+        }
+      ]
+    }
+  },
+  {
+    $project: {
+      name: 1,
+      songDetails: {
+        title: 1,
+        singerInfo: 1
+      }
+    }
+  }
+]);
+```
+- **Find all users who like songs of genre Hip Hop.**
+```js
+db.users.aggregate([
+  {
+    $lookup: {
+      from: "songs",
+      localField: "favoriteSongs",   // user’s song IDs
+      foreignField: "_id",           // songs._id
+      as: "songDetails"
+    }
+  },
+  {
+    $match: {
+      "songDetails.genre": "Hip Hop" // keep only users who like Hip Hop songs
+    }
+  },
+  {
+    $project: {
+      name: 1,
+      songDetails: { title: 1, genre: 1 }
+    }
+  }
+])
+```
+- **Find all users whose favoriteSinger is from USA.**
+```js
+db.users.aggregate([
+     {$lookup:{
+      from :"singers",
+      localField: "favoriteSinger",   
+      foreignField: "_id",          
+      as: "singerDetails"
+     }},{
+      $match:{
+          "singerDetails.contry":"USA"
+      }
+     },
+     {$project:{
+      name:1,
+      singerDetails:{name:1,country:1}
+     }}
 
-Find users with singer info embedded via $lookup.
+]);
+```
+- **Find which singer is most liked by users.**
+```js
+db.users.aggregate([
+  {
+    $unwind: "$favoriteSinger" // only if it's an array
+  },
+  {
+    $group: {
+      _id: "$favoriteSinger",   // group by singerId
+      count: { $sum: 1 }        // count how many users like them
+    }
+  },
+  {
+    $lookup: {
+      from: "singer",           // singer collection
+      localField: "_id",        // group key = singerId
+      foreignField: "_id",      // match singer._id
+      as: "singerDetails"
+    }
+  },
+  { 
+    $unwind: "$singerDetails"   // flatten singer array
+  },
+  {
+    $sort: { count: -1 }        // sort by most liked
+  },
+  {
+    $project: {
+      _id: 0,
+      singerId: "$_id",
+      singerName: "$singerDetails.name",
+      likedByUsers: "$count"
+    }
+  }
+])
+```
+- **Find which singer’s fans listen to the longest songs.**
+```js
+users → favoriteSongs → songs (with duration + singerId) → singers
+db.users.aggregate([
+  // Step 1: Expand each user's favoriteSongs
+  { $unwind: "$favoriteSongs" },
 
-Find all users who like songs of genre Hip Hop.
+  // Step 2: Lookup song details
+  {
+    $lookup: {
+      from: "songs",
+      localField: "favoriteSongs",
+      foreignField: "_id",
+      as: "songDetails"
+    }
+  },
+  { $unwind: "$songDetails" },
 
-Find all users whose favoriteSinger is from USA.
+  // Step 3: Lookup singer details from songs.singerId
+  {
+    $lookup: {
+      from: "singers",
+      localField: "songDetails.singerId",
+      foreignField: "_id",
+      as: "singerDetails"
+    }
+  },
+  { $unwind: "$singerDetails" },
 
-Find which singer is most liked by users.
+  // Step 4: Group by singer and sum durations
+  {
+    $group: {
+      _id: "$singerDetails._id",
+      singerName: { $first: "$singerDetails.name" },
+      totalDuration: { $sum: "$songDetails.duration" }
+    }
+  },
 
-Find which singer’s fans listen to the longest songs.
+  // Step 5: Sort by longest listening time
+  { $sort: { totalDuration: -1 } },
 
-List all singers along with how many users like them.
+  // Step 6: Output clean fields
+  {
+    $project: {
+      _id: 0,
+      singerName: 1,
+      totalDuration: 1
+    }
+  }
+])
 
-Find users who like both singer "A" and song "B".
+```
+ - **List all singers along with how many users like them.**
+```js
+db.users.aggregate([
+  { $unwind: "$favSingers" },
 
+  {
+    $group: {
+      _id: "$favSingers",  // singerId
+      count: { $sum: 1 }
+    }
+  },
+  {
+    $lookup: {
+      from: "singers",
+      localField: "_id",       // singerId from group
+      foreignField: "_id",     // singer._id in singers collection
+      as: "singerDetails"
+    }
+  },
+  { $unwind: "$singerDetails" },
+
+  { $sort: { count: -1 } },
+
+  {
+    $project: {
+      _id: 0,
+      singerId: "$_id",
+      singerName: "$singerDetails.name",
+      likedByUsers: "$count"
+    }
+  }
+])
+
+```
 Find all singers and their fans (users).
+```js
+db.users.aggregate([
+  // step 1: unwind favorite singers of each user
+  { $unwind: "$favSingers" },
+
+  // step 2: join with singers collection
+  {
+    $lookup: {
+      from: "singers",             // target collection
+      localField: "favSingers",    // user.favSingers (ObjectId)
+      foreignField: "_id",         // singers._id
+      as: "singerDetails"
+    }
+  },
+
+  // step 3: flatten singerDetails array (optional)
+  { $unwind: "$singerDetails" },
+
+  // step 4: group by singer
+  {
+    $group: {
+      _id: "$singerDetails._id",
+      singerName: { $first: "$singerDetails.name" },   // singer name
+      fans: { $addToSet: "$name" },                    // collect unique user names
+      fanCount: { $sum: 1 }                            // number of fans
+    }
+  },
+
+  // step 5: sort by popularity
+  { $sort: { fanCount: -1 } }
+])
+
+```
 
 6️⃣ Intermediate Aggregations
 
