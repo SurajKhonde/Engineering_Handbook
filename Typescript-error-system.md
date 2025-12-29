@@ -1,8 +1,10 @@
 
-# TypeScript Error Handling Deep Dive  
-### Interfaces, Abstract Classes, `extends`, and a Production-Ready Error System
+# TypeScript Error Handling Deep Dive 
+
+## Interfaces, Abstract Classes, `extends`, and a Production-Ready Error System
 
 These notes are your reusable guide to:
+
 - How `IError` and `IErrorResponse` work
 - What `interface`, `abstract`, `extends`, `super`, `static` really mean
 - How the `CustomError` pattern works

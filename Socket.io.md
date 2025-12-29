@@ -637,3 +637,5 @@ Now, `io.to('room-1').emit(...)` works across all Node servers.
 - **Long polling** → “Ask once, keep waiting until something happens.”  
 - **WebSocket** → “Keep a TCP tunnel open, talk freely both ways.”  
 - **Socket.IO** → “Smart tunnel manager: reconnection, rooms, events, fallbacks, scaling.”
+
+[socket_New](./NewSocketIo.md)

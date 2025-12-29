@@ -1,49 +1,75 @@
-## TypeScript
+# TypeScript Notes (Quickstart → Core Concepts)
+
+> These notes are written for **TypeScript + Node.js** projects, but most concepts apply everywhere.
+
+## Setup
+
+Install TypeScript as a dev dependency:
+
 ```bash
-npm install typescript --save-dev
+npm install --save-dev typescript
 ```
-- The compiler is installed in the node_modules directory and can be run with: npx tsc.
+
+Run the compiler (installed in `node_modules`) with:
+
 ```bash
 npx tsc
 ```
-- **Configuring the compiler**
-By default the TypeScript compiler will print a help message when run in an empty project.
 
-- The compiler can be configured using a `tsconfig.json` file.
+### Create a `tsconfig.json`
 
-You can have TypeScript create `tsconfig.json` with the recommended settings with:
+In an empty project, `tsc` prints help by default. Create a config file:
+
 ```bash
 npx tsc --init
 ```
 
-**Key Concepts & Explanations**
-- compilerOptions: Controls how TypeScript compiles your code (e.g., target, module, strictness).
-- include: Files or folders to include in the compilation.
-- exclude: Files or folders to exclude.
-- files: Explicit list of files to include (rarely used with include).
-- extends: Inherit options from another config file.
-- references: Enable project references for monorepos or multi-package setups.
-**`Advanced tsconfig.json`**\
-```bash
+## `tsconfig.json` basics
+
+### Key fields
+
+- **compilerOptions**: how TypeScript compiles your code (target, module, strictness, etc.)
+- **include**: files/folders to include (commonly `["src"]`)
+- **exclude**: files/folders to ignore (commonly `["node_modules", "dist"]`)
+- **files**: explicit list of files to include (rare; usually use `include`)
+- **extends**: inherit from another tsconfig (useful for monorepos)
+- **references**: project references (monorepos / multi-package builds)
+
+### Example: practical `tsconfig.json`
+
+```json
 {
   "compilerOptions": {
-    "target": "es2020",
-    "module": "esnext",
+    "target": "ES2020",
+    "lib": ["ES2020"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
     "strict": true,
+    "noImplicitAny": true,
     "baseUrl": ".",
     "paths": {
       "@app/*": ["src/app/*"]
     },
+    "rootDir": "src",
     "outDir": "dist",
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist"]
 }
 ```
-### Your First TypeScript Program
 
-**1.Create a new file named `hello.ts` with the following content:**
+> [!NOTE]
+> `moduleResolution` depends on your runtime/bundler. For Node.js (CommonJS) projects you may prefer `"module": "CommonJS"` and `"moduleResolution": "NodeNext"`.
+
+---
+
+## Your first TypeScript program
+
+Create `hello.ts`:
+
 ```ts
 function greet(name: string): string {
   return `Hello, ${name}!`;
@@ -52,205 +78,245 @@ function greet(name: string): string {
 const message: string = greet("World");
 console.log(message);
 ```
+
+Compile it:
+
 ```bash
 npx tsc hello.ts
 ```
-#### TypeScript Primitives:
-```ts
-let isActive: boolean = true;
-let hasPermission = false;
-//Number
-let decimal: number = 6;
-let hex: number = 0xf00d;       //Hexadecimal
-let binary: number = 0b1010;     // Binary
-let octal: number = 0o744;      // Octal
-let float: number = 3.14; 
-//String
-let color: string = "blue";
-let fullName: string = 'John Doe';
-//BigInt (ES2020+)
-const bigNumber: bigint = 9007199254740991n;
-const hugeNumber = BigInt(9007199254740991);
-//Symbol 
-const uniqueKey: symbol = Symbol('description');
-const obj = {
-  [uniqueKey]: 'This is a unique property'
-};
-console.log(obj[uniqueKey]); 
-```
-#### Type Annotations and Inference.
-TypeScript offers two ways to work with types:
 
-1.Explicit Typing: You explicitly declare the type of a variable
-2.Type Inference: TypeScript automatically determines the type based on the assigned value
-###### When to Use Each Approach
-Use explicit types for:
-- Function parameters and return types
-Object literals
-- When the initial value might not be the final type
-Use type inference for:
-- Simple variable declarations with immediate assignment
-- When the type is obvious from the context
-**Explicit Type Annotations**
+---
+
+## TypeScript primitives
+
 ```ts
-// String
-greeting: string = "Hello, TypeScript!";
+// Boolean
+let isActive: boolean = true;
+let hasPermission = false; // inferred as boolean
 
 // Number
-userCount: number = 42;
+let decimal: number = 6;
+let hex: number = 0xf00d;      // Hexadecimal
+let binary: number = 0b1010;   // Binary
+let octal: number = 0o744;     // Octal
+let float: number = 3.14;
+
+// String
+let color: string = "blue";
+let fullName: string = "John Doe";
+
+// BigInt (ES2020+)
+const bigNumber: bigint = 9007199254740991n;
+const hugeNumber = BigInt(9007199254740991);
+
+// Symbol
+const uniqueKey: symbol = Symbol("description");
+const obj = {
+  [uniqueKey]: "This is a unique property"
+};
+console.log(obj[uniqueKey]);
+```
+
+---
+
+## Type annotations vs type inference
+
+TypeScript offers two ways to work with types:
+
+1. **Explicit typing**: you declare the type yourself  
+2. **Type inference**: TypeScript infers the type from the assigned value
+
+### When to use each
+
+Use **explicit types** for:
+- Function parameters and return types
+- Object literals (especially public-facing shapes)
+- When the initial value might not be the final type
+
+Use **type inference** for:
+- Simple variables declared with immediate assignment
+- Cases where the type is obvious
+
+### Explicit type annotations
+
+```ts
+// String
+let greeting: string = "Hello, TypeScript!";
+
+// Number
+let userCount: number = 42;
 
 // Boolean
-isLoading: boolean = true;
+let isLoading: boolean = true;
 
 // Array of numbers
-scores: number[] = [100, 95, 98];
+let scores: number[] = [100, 95, 98];
 ```
->[!note]Best Practice: Use explicit types for function parameters and return types to make your code more maintainable and self-documenting.
+
+> [!NOTE]
+> Best practice: use explicit types for **function parameters and return types** to make code more maintainable and self-documenting.
 
 ```ts
-//Function with Explicit Types
 function greet(name: string): string {
-return `Hello, ${name}!`;
+  return `Hello, ${name}!`;
 }
 
-// TypeScript will ensure you pass the correct argument type
 greet("Alice"); // OK
-greet(42);     // Error: Argument of type '42' is not assignable to parameter of type 'string'
+// greet(42);   // ❌ Error: Argument of type 'number' is not assignable to parameter of type 'string'
 ```
-##### Type Inference
+
+### Type inference
+
 ```ts
-// TypeScript infers 'string'
-let username = "alice";
+let username = "alice"; // inferred as string
+let score = 100;        // inferred as number
+let flags = [true, false, true]; // inferred as boolean[]
 
-// TypeScript infers 'number'
-let score = 100;
-
-// TypeScript infers 'boolean[]'
-let flags = [true, false, true];
-
-// TypeScript infers return type as 'number'
 function add(a: number, b: number) {
-return a + b;
+  return a + b; // inferred return type: number
 }
 ```
->[!note]Note: Type inference works best when variables are initialized at declaration.Uninitialized variables have type 'any' by default unless you enable strictNullChecks in your tsconfig.json.
 
-##### Type Safety in Action.
+> [!NOTE]
+> Inference works best when variables are initialized at declaration.  
+> Uninitialized variables become `any` unless `noImplicitAny` is enabled.
+
+### Type safety in action
+
 ```ts
-//Explicit Type Mismatch
-let username: string = "alice";
-username = 42; // Error: Type 'number' is not assignable to type 'string'
-//Implicit Type Mismatch
-let score = 100;  // TypeScript infers 'number'
-score = "high";  // Error: Type 'string' is not assignable to type 'number'
+let username2: string = "alice";
+// username2 = 42; // ❌ Error: Type 'number' is not assignable to type 'string'
+
+let score2 = 100; // inferred as number
+// score2 = "high"; // ❌ Error: Type 'string' is not assignable to type 'number'
 ```
-#### **When TypeScript Can't Infer Types**
-- While TypeScript's type inference is powerful, there are cases where it can't determine the correct type.
 
-- In these situations, TypeScript falls back to the any type, which disables type checking.
->[!note]Note: any and other Special Types are covered in more detail in the next chapter.
+---
+
+## When TypeScript can't infer types (and falls back to `any`)
+
 ```ts
-/ 1. JSON.parse returns 'any' because the structure isn't known at compile time
+// 1) JSON.parse returns 'any' because the structure isn't known at compile time
 const data = JSON.parse('{ "name": "Alice", "age": 30 }');
 
-// 2. Variables declared without initialization
-let something;  // Type is 'any'
-something = 'hello';
-something = 42;  // No error
+// 2) Variable declared without initialization
+let something; // type: any (unless noImplicitAny is enabled)
+something = "hello";
+something = 42; // no error if it's 'any'
 ```
-**Avoid `any` When Possible**
-Using any disables TypeScript's type checking.
 
-Instead, consider these alternatives:
+### Avoid `any` when possible
 
-- Use type annotations
-- Create interfaces for complex objects
-- Use type guards for runtime type checking
-- Enable noImplicitAny in your tsconfig.json
+Instead consider:
+- Add type annotations
+- Create interfaces/types for complex objects
+- Use type guards for runtime checks
+- Enable `noImplicitAny` in your tsconfig
 
-##### TypeScript Special Types
-These types are used in various scenarios to handle cases where the type might not be known in advance or when you need to work with JavaScript primitives in a type-safe way.
->[!Note]These special types are part of TypeScript's type system and help make your code more type-safe and self-documenting.
+---
 
-###### **Type: any**
-- The any type is the most flexible type in TypeScript.
-- It essentially tells the compiler to skip type checking for a particular variable.
-- While this can be useful in certain situations, it should be used sparingly as it bypasses TypeScript's type safety features.
->[!any]When to use `any`:
-- When migrating JavaScript code to TypeScript.
-- When working with dynamic content where the type is unknown.
-- When you need to opt out of type checking for a specific case.
->[!warning]Remember, it should be avoided at "any" cost...
+## Special types: `any`, `unknown`, `never`
 
-###### **Type: unknown**
-The `unknown` type is a type-safe counterpart of `any`.
-It's the type-safe way to say "this could be anything, so you must perform some type of checking before you use it".
->[!note]Key differences between unknown and any:
->unknown must be type-checked before use.
->You can't access properties on an unknown type without type assertion.
->You can't call or construct values of type unknown.
+### `any`
 
-**When to use unknown:**
-- When working with data from external sources (APIs, user input, etc.)
-- When you want to ensure type safety while still allowing flexibility
-- When migrating from JavaScript to TypeScript in a type-safe way.
-  
-**Type: never**
-- The never type represents the type of values that never occur.
-- It's used to indicate that something never happens or should never happen.
-**Common use cases for never:**
-- Functions that never return (always throw an error or enter an infinite loop).
-- Type guards that never pass type checking.
-- Exhaustiveness checking in discriminated unions.
-######  Examples of never in action:
-**1. Function that never returns**
-```js
+- Opts out of type checking for a value.
+- Useful during migration from JS → TS, but should be used sparingly.
+
+> [!WARNING]
+> `any` disables TypeScript’s protection—avoid it unless you truly must.
+
+### `unknown`
+
+`unknown` is the type-safe counterpart of `any`.
+
+Key rules:
+- You **must** narrow or assert the type before using it.
+- You can’t access properties/call it without narrowing.
+
+```ts
+function handleInput(input: unknown) {
+  if (typeof input === "string") {
+    console.log(input.toUpperCase());
+  }
+}
+```
+
+### `never`
+
+Represents values that never occur.
+
+Common uses:
+- Functions that never return (throw / infinite loop)
+- Exhaustiveness checking in unions
+
+```ts
 function throwError(message: string): never {
   throw new Error(message);
 }
 ```
-#### TypeScript Arrays
+
+---
+
+## Arrays
+
 ```ts
 const names: string[] = [];
 names.push("Dylan");
-// names.push(3); // Error: Argument of type 'number' is not assignable to parameter of type 'string'.
+// names.push(3); // ❌ Error
 ```
-**Readonly**
-- The `readonly` keyword can prevent arrays from being changed.
 
-#### TypeScript Tuples
-###### Typed Arrays
-- A `tuple` is a typed array with a pre-defined length and types for each index.Tuples are great because they allow each element in the array to be a known type of value.
+### Readonly arrays
+
 ```ts
-// define our tuple
-let ourTuple: [number, boolean, string];
-// initialize correctly
-ourTuple = [5, false, 'Coding God was here'];
+const nums: readonly number[] = [1, 2, 3];
+// nums.push(4); // ❌ Property 'push' does not exist on type 'readonly number[]'
 ```
->[!note]Even though we have a boolean, string, and number the order matters in our tuple and will throw an error.
-###### Destructuring Tuples
+
+---
+
+## Tuples
+
+A **tuple** is a typed array with a fixed length and known types per index.
+
+```ts
+let ourTuple: [number, boolean, string];
+ourTuple = [5, false, "Coding God was here"];
+// ourTuple = [false, 5, "x"]; // ❌ order matters
+```
+
+### Destructuring tuples
+
 ```ts
 const graph: [number, number] = [55.2, 41.3];
 const [x, y] = graph;
 ```
-#### TypeScript Object Types 
+
+---
+
+## Object types
+
 ```ts
-const car: { type: string, model: string, year: number } = {
+const car: { type: string; model: string; year: number } = {
   type: "Toyota",
   model: "Corolla",
   year: 2009
 };
 ```
-###### Optional Properties
+
+### Optional properties
+
 ```ts
-const car: { type: string, mileage?: number } = { // no error
+const car2: { type: string; mileage?: number } = {
   type: "Toyota"
 };
-car.mileage = 2000;
+
+car2.mileage = 2000;
 ```
-##### Numeric Enums - Fully Initialized
-- You can assign unique number values for each enum value.
-- Then the values will not be incremented automatically:
+
+---
+
+## Enums (numeric example)
+
 ```ts
 enum StatusCodes {
   NotFound = 404,
@@ -258,81 +324,101 @@ enum StatusCodes {
   Accepted = 202,
   BadRequest = 400
 }
-// logs 404
-console.log(StatusCodes.NotFound);
-// logs 200
-console.log(StatusCodes.Success);
+
+console.log(StatusCodes.NotFound); // 404
+console.log(StatusCodes.Success);  // 200
 ```
-#### **TypeScript Type Aliases and Interfaces**
-- Type Alias in TypeScript means: you give a type a new name, so you can reuse it and keep code clean.
-**1) Alias for primitive types**
-```js
+
+> [!NOTE]
+> Many projects prefer string unions (`"success" | "error"`) over enums for simpler JS output.
+
+---
+
+## Type aliases and interfaces
+
+### Type aliases
+
+**1) Alias for primitives**
+
+```ts
 type UserId = string;
 type Age = number;
 
 const id: UserId = "u-101";
 const age: Age = 25;
-
 ```
+
 **2) Alias for object types**
+
 ```ts
 type User = {
   id: string;
   name: string;
   isActive: boolean;
 };
+
 const u1: User = { id: "1", name: "Suraj", isActive: true };
 ```
-**1) Intersection type (&) = “combine / merge types”**
+
+**Intersection (`&`) = combine types**
+
 ```ts
 type Animal = { name: string };
 type Bear = Animal & { honey: boolean };
+
 const bear: Bear = { name: "Winnie", honey: true };
 ```
-**Meaning:**
-- Bear must have everything from Animal AND everything from { honey: boolean }
-so Bear becomes: { name: string; honey: boolean }
 
-**2) Union type (|) = “either this OR that”**
+**Union (`|`) = either/or**
+
 ```ts
 type Status = "success" | "error";
 let response: Status = "success";
+// response = "pending"; // ❌ not allowed
 ```
-**Meaning:**
-- response can be only "success" or "error"
-- anything else is 
-#### Interfaces
-Interfaces in TypeScript are a way to **define the “shape” (structure) of an object.** They are used a lot in real projects (React props, API responses, service contracts).
-- 1) Basic interface (object shape)
+
+### Interfaces
+
+Interfaces define the **shape** of an object. Common in real projects (API types, React props, service contracts).
+
+**1) Basic interface**
+
 ```ts
-  interface User {
+interface IUser {
   id: string;
   name: string;
   isActive: boolean;
 }
-const u1: User = { id: "1", name: "Suraj", isActive: true };
+
+const userA: IUser = { id: "1", name: "Suraj", isActive: true };
 ```
-- 2) Optional properties (?)
+
+**2) Optional properties**
+
 ```ts
-interface User {
+interface IUser2 {
   id: string;
   name: string;
-  phone?: string; // optional
+  phone?: string;
 }
-const u2: User = { id: "2", name: "Amit" }; // ok
 
+const userB: IUser2 = { id: "2", name: "Amit" };
 ```
--3) Readonly properties:
+
+**3) Readonly properties**
+
 ```ts
-interface User {
+interface IUser3 {
   readonly id: string;
   name: string;
 }
-const u: User = { id: "1", name: "Suraj" };
-// u.id = "2" ❌ not allowed
 
+const userC: IUser3 = { id: "1", name: "Suraj" };
+// userC.id = "2"; // ❌ not allowed
 ```
-**4) Function types in interface**
+
+**4) Function types in interfaces**
+
 ```ts
 interface Logger {
   log(message: string): void;
@@ -341,113 +427,115 @@ interface Logger {
 const consoleLogger: Logger = {
   log(msg) {
     console.log(msg);
-  },
+  }
 };
 ```
-**Extending interface (extends)**
+
+**Extending interfaces (`extends`)**
+
 ```ts
-interface Animal {
+interface Animal2 {
   name: string;
 }
 
-interface Bear extends Animal {
+interface Bear2 extends Animal2 {
   honey: boolean;
 }
 
-const b: Bear = { name: "Winnie", honey: true };
+const b: Bear2 = { name: "Winnie", honey: true };
 ```
-```ts
-interface Rectangle {
-  height: number,
-  width: number
-}
-interface ColoredRectangle extends Rectangle {
-  color: string
-}
-const coloredRectangle: ColoredRectangle = {
-  height: 20,
-  width: 10,
-  color: "red"
-};
-```
-##### TypeScript Union Types
-**Union types** are used when a value can be more than a single type.
-Such as when a property would be `string` or `number`.
 
-**Union | (OR)**
-- Using the | we are saying our parameter is a `string` or `number`:
+---
+
+## Union types (more examples)
+
 ```ts
 function printStatusCode(code: string | number) {
-  console.log(`My status code is ${code}.`)
+  console.log(`My status code is ${code}.`);
 }
+
 printStatusCode(404);
-printStatusCode('404');
+printStatusCode("404");
 ```
-##### TypeScript Functions
-**Return Type**
+
+---
+
+## Functions
+
+### Return type
+
 ```ts
-// the `: number` here specifies that this function returns a number
 function getTime(): number {
   return new Date().getTime();
 }
 ```
-**Void Return Type**
-- The type `void` can be used to indicate a function doesn't return any value.
+
+### `void` return type
+
 ```ts
 function printHello(): void {
-  console.log('Hello!');
+  console.log("Hello!");
 }
 ```
-**Parameters**
+
+### Optional parameters
+
 ```ts
-function multiply(a: number, b: number) {
-  return a * b;
+function add2(a: number, b: number, c?: number) {
+  return a + b + (c ?? 0);
 }
 ```
-**Optional Parameters**
-- By default TypeScript will assume all parameters are required, but they can be explicitly marked as optional.
-```ts
-// the `?` operator here marks parameter `c` as optional
-function add(a: number, b: number, c?: number) {
-  return a + b + (c || 0);
-}
-```
-**Default Parameters**
-- For parameters with default values, the default value goes after the type annotation:
+
+### Default parameters
+
 ```ts
 function pow(value: number, exponent: number = 10) {
   return value ** exponent;
 }
 ```
-##### TypeScript Casting
-**Casting with `as`**
-A straightforward way to cast a variable is using the as keyword, which will directly change the type of the given variable.
+
+---
+
+## Casting (type assertions)
+
+### `as` casting
+
 ```ts
-let x: unknown = 'hello';
+let x: unknown = "hello";
 console.log((x as string).length);
 ```
-**Casting with `<>`**
-Using `<>` works the same as casting with as.
+
+### `<>` casting
+
 ```ts
-let x: unknown = 'hello';
-console.log((<string>x).length);
+let y: unknown = "hello";
+console.log((<string>y).length);
 ```
-#### TypeScript Classes
-- The members of a class (properties & methods) are typed using type annotations, similar to variables.
+
+> [!NOTE]
+> In TSX/React files, prefer `as` because `<>` conflicts with JSX syntax.
+
+---
+
+## Classes
+
 ```ts
 class Person {
-  name: string;
+  name: string = "";
 }
+
 const person = new Person();
 person.name = "Jane";
 ```
-##### Members: Visibility
->[!note]There are three main visibility modifiers in TypeScript.
- - public - (default) allows access to the class member from anywhere
- - private - only allows access to the class member from within the class
- - protected - allows access to the class member from itself and any classes that inherit it, which is covered in the inheritance section below.
+
+### Visibility modifiers
+
+- `public` (default): accessible everywhere
+- `private`: accessible only inside the class
+- `protected`: accessible in the class and subclasses
+
 ```ts
- class Person {
+class Person2 {
   private name: string;
 
   public constructor(name: string) {
@@ -459,38 +547,41 @@ person.name = "Jane";
   }
 }
 
-const person = new Person("Jane");
-console.log(person.getName()); // person.name isn't accessible from outside the class since it's private
+const p2 = new Person2("Jane");
+console.log(p2.getName());
+// console.log(p2.name); // ❌ private
 ```
-#### Parameter Properties
-TypeScript provides a convenient way to define class members in the constructor, by adding a visibility modifier to the parameter.
+
+### Parameter properties
+
 ```ts
-class Person {
-  // name is a private member variable
+class Person3 {
   public constructor(private name: string) {}
 
   public getName(): string {
     return this.name;
   }
 }
-
-const person = new Person("Jane");
-console.log(person.getName());
 ```
 
-#### TypeScript Basic Generics
-Generics allow creating 'type variables' which can be used to create classes, functions & type aliases that don't need to explicitly define the types that they use.
-Generics make it easier to write reusable code.
-**Functions**
-- Generics with functions help create more general functions that accurately represent the input and return types.
+---
+
+## Generics (basic)
+
+Generics let you write reusable code with “type variables”.
+
+### Generic functions
+
 ```ts
 function createPair<S, T>(v1: S, v2: T): [S, T] {
   return [v1, v2];
 }
-console.log(createPair<string, number>('hello', 42)); // ['hello', 42]
+
+console.log(createPair<string, number>("hello", 42));
 ```
-**Classes**
-Generics can be used to create generalized classes, like Map.
+
+### Generic classes
+
 ```ts
 class NamedValue<T> {
   private _value: T | undefined;
@@ -510,146 +601,161 @@ class NamedValue<T> {
   }
 }
 
-let value = new NamedValue<number>('myNumber');
+const value = new NamedValue<number>("myNumber");
 value.setValue(10);
-console.log(value.toString()); // myNumber: 10
+console.log(value.toString());
 ```
-**Type Aliases**
+
+### Generic type aliases
+
 ```ts
 type Wrapped<T> = { value: T };
 
 const wrappedValue: Wrapped<number> = { value: 10 };
 ```
-#### TypeScript Utility Types
-- TypeScript comes with a large number of types that can help with some common type manipulation, usually referred to as utility types.
-  **Partial**
-  `Partial` changes all the properties in an object to be optional.
+
+---
+
+## Utility types
+
+### `Partial<T>`
+
+Makes all properties optional.
+
 ```ts
 interface Point {
   x: number;
   y: number;
 }
 
-let pointPart: Partial<Point> = {}; // `Partial` allows x and y to be optional
+let pointPart: Partial<Point> = {};
 pointPart.x = 10;
 ```
-**Required**
-`Required` changes all the properties in an object to be required.
+
+### `Required<T>`
+
+Makes all properties required.
+
 ```ts
-interface Car {
+interface Car3 {
   make: string;
   model: string;
   mileage?: number;
 }
 
-let myCar: Required<Car> = {
-  make: 'Ford',
-  model: 'Focus',
-  mileage: 12000 // `Required` forces mileage to be defined
-}
+let myCar: Required<Car3> = {
+  make: "Ford",
+  model: "Focus",
+  mileage: 12000
+};
 ```
-**Record**
-`Record` is a shortcut to defining an object type with a specific key type and value type.
+
+### `Record<K, V>`
+
 ```ts
 const nameAgeMap: Record<string, number> = {
-  'Alice': 21,
-  'Bob': 25
+  Alice: 21,
+  Bob: 25
 };
 ```
->[!warning]Record<string, number> is equivalent to { [key: string]: number }
 
-**Omit**
-`Omit` removes keys from an object type.
+### `Omit<T, K>`
+
 ```ts
-interface Person {
+interface Person4 {
   name: string;
   age: number;
   location?: string;
 }
 
-const bob: Omit<Person, 'age' | 'location'> = {
-  name: 'Bob'
-  // `Omit` has removed age and location from the type and they can't be defined here
+const bob: Omit<Person4, "age" | "location"> = {
+  name: "Bob"
 };
 ```
-**Pick**
-`Pick` removes all but the specified keys from an object type.
-```ts
-interface Person {
-  name: string;
-  age: number;
-  location?: string;
-}
 
-const bob: Pick<Person, 'name'> = {
-  name: 'Bob'
-  // `Pick` has only kept name, so age and location were removed from the type and they can't be defined here
+### `Pick<T, K>`
+
+```ts
+const bob2: Pick<Person4, "name"> = {
+  name: "Bob"
 };
 ```
-**Exclude**
-`Exclude` removes types from a union.
+
+### `Exclude<T, U>`
+
 ```ts
-type Primitive = string | number | boolean
-const value: Exclude<Primitive, string> = true; // a string cannot be used here since Exclude removed it from the type.
+type Primitive = string | number | boolean;
+const val: Exclude<Primitive, string> = true; // string excluded
 ```
-**ReturnType**
-`ReturnType` extracts the return type of a function type.
+
+### `ReturnType<T>`
+
 ```ts
-type PointGenerator = () => { x: number; y: number; };
-const point: ReturnType<PointGenerator> = {
-  x: 10,
-  y: 20
-};
+type PointGenerator = () => { x: number; y: number };
+const p: ReturnType<PointGenerator> = { x: 10, y: 20 };
 ```
-**Parameters**
-`Parameters` extracts the parameter types of a function type as an array.
+
+### `Parameters<T>`
+
 ```ts
-type PointPrinter = (p: { x: number; y: number; }) => void;
-const point: Parameters<PointPrinter>[0] = {
-  x: 10,
-  y: 20
-};
+type PointPrinter = (p: { x: number; y: number }) => void;
+const arg: Parameters<PointPrinter>[0] = { x: 10, y: 20 };
 ```
-**Readonly**
-`Readonly` is used to create a new type where all properties are readonly, meaning they cannot be modified once assigned a value.
+
+### `Readonly<T>`
+
 ```ts
-interface Person {
+interface Person5 {
   name: string;
   age: number;
 }
-const person: Readonly<Person> = {
-  name: "Dylan",
-  age: 35,
-};
-person.name = 'Israel'; // prog.ts(11,8): error TS2540: Cannot assign to 'name' because it is a read-only property.
+
+const personR: Readonly<Person5> = { name: "Dylan", age: 35 };
+// personR.name = "Israel"; // ❌ Cannot assign to 'name'
 ```
 
-### **TypeScript Configuration**
-- The `tsconfig.json` file is the heart of every TypeScript project.
-- It tells the TypeScript compiler how to process your code, which files to include, and which features to enable or disable.
-- A well-configured `tsconfig.json` ensures a smooth developer experience and reliable builds.
+---
 
-**Key Concepts & Explanations**
-- **compilerOptions**: Controls how TypeScript compiles your code (e.g., target, module, strictness).
-- **include**: Files or folders to include in the compilation.
-- **exclude**: Files or folders to exclude.
-- **files**: Explicit list of files to include (rarely used with include).
-- **extends**: Inherit options from another config file.
-- **references**: Enable project references for monorepos or multi-package setups.
+## Node.js + TypeScript project skeleton
 
-**To generate a `tsconfig.json` file, run:**
-`tsc --init`
-###### 1.Initialize a New Project
+### 1) Initialize
+
 ```bash
 mkdir my-ts-node-app
 cd my-ts-node-app
 npm init -y
-npm install typescript @types/node --save-dev
+npm install --save-dev typescript @types/node
 npx tsc --init
 ```
-###### 2. Create a Source Folder
-Keep source code in `src/ `and compiled output in `dist/.`
-```ts
+
+### 2) Create folders
+
+Keep source in `src/` and output in `dist/`.
+
+```bash
 mkdir src
+mkdir dist
 # later add files like: src/server.ts, src/middleware/auth.ts
 ```
+
+### 3) Useful `package.json` scripts
+
+```json
+{
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/server.js",
+    "dev": "tsc -w"
+  }
+}
+```
+
+---
+
+### Next topics to add (optional)
+
+- Narrowing & type guards (`in`, `typeof`, `instanceof`, custom predicates)
+- Discriminated unions
+- `as const`, literal inference, template literal types
+- Zod / runtime validation patterns for API inputs
+- TS with Express / Fastify / NestJS
