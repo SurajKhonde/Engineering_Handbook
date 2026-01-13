@@ -10,15 +10,10 @@
 ## 1. Reverse the String (Easy)
 
 **Problem Statement:** Given a string **S**, print the reverse of **S**.
-
-
 **Input Format:**
-
 - One line containing the string **S** (may contain spaces).
 
-
 **Output Format:**
-
 - Print the reversed string.
 
 
@@ -26,12 +21,25 @@
 ```text
 abcd
 ```
-
 **Sample Output:**
 ```text
 dcba
 ```
+```js
+function reverseString(str){
+  let arr =str.spilit("");
+  let left =0;
+  let right =arr.length-1;
+  while(left<right){
+    [arr[left],arr[right]]=[arr[right],arr[left]];
+    left ++ ;
+    right --;
 
+  }
+  return arr.join("")
+
+}
+```
 ---
 
 ## 2. Check Palindrome (Easy)
@@ -58,7 +66,17 @@ madam
 ```text
 YES
 ```
-
+```js
+function checkPalindrome(str){
+  let arr =str.spilit("");
+  let left =0;
+  let right =arr.length-1;
+  while(left<right){
+    if(arr[left]!==arr[right]) return "NO"
+  }
+  return "YES"
+}
+```
 ---
 
 ## 3. Count Vowels (Easy)
@@ -85,7 +103,17 @@ Hello World
 ```text
 3
 ```
+```js
+function countVolves(str){
+let volvesFreq=new Set("a","i","o","e","u");
+let count =0
+for(let i<str.length;i++){
+  if(volvesFreq.has(str[i])) count ++
 
+}
+return count
+} 
+```
 ---
 
 ## 4. Count Consonants (Easy)
@@ -112,7 +140,26 @@ a1b! c
 ```text
 2
 ```
+```js
+function isAlphachar(char){
+    let targetChar =char.toLowercase().charCodeAt()
+    if(targetChar>=97 &&targetChar<=122) return true
+    return false
+  };
+ function isVolves (char){
+  let isvloves=new Set(["a","e","i","o","u"]);
+  return isvloves.has(char.toLowerCase()) ? true:false ;  
+ }
+function countConstant(str){
+  let count=0;
+   for(let i=0;i<str.length;i++){
+    if(isAlphachar(str[i]) && !isVolves(str[i]) )count ++;
 
+   }
+   retrurn count
+} 
+```
+ 
 ---
 
 ## 5. Toggle Case (Easy)
@@ -139,7 +186,28 @@ AbC-12xY
 ```text
 aBc-12Xy
 ```
+```js
+function isAlphaChar(char) {
+  const code = char.charCodeAt(0);
+  return (code >= 65 && code <= 90) || (code >= 97 && code <= 122); 
+};
+function caseTransformer(char) {
+  const code = char.charCodeAt(0);
+  if (code >= 97 && code <= 122) return char.toUpperCase();
+  if (code >= 65 && code <= 90) return char.toLowerCase(); 
 
+  return char;
+};
+function caseTransform(str) {
+  let result = "";
+  for (let i = 0; i < str.length; i++) {
+    const ch = str[i];
+    result += isAlphaChar(ch) ? caseTransformer(ch) : ch;
+  }
+  return result;
+};
+
+```
 ---
 
 ## 6. Remove Vowels (Easy)
@@ -165,6 +233,21 @@ Beautiful Day
 **Sample Output:**
 ```text
 Btfl Dy
+```
+```js
+function isVowel(char) {
+  const vowels = ["a", "e", "i", "o", "u"];
+  return vowels.includes(char.toLowerCase());
+}
+function removeVowels(str){
+  let result ="" ;
+  for(let i=0;i<str.length;i++){
+    if(!isVloves(str[i])) result+=str[i]
+    
+  }
+  return result
+
+}
 ```
 
 ---
@@ -193,7 +276,16 @@ i love dsa
 ```text
 i-love-dsa
 ```
-
+```js
+function replaceSpaceswithDashes(str){
+  let result =""
+  for(let i=0;i<str.length;i++){
+    result += (str[i] ===" ")? "-" :str[i];
+  }
+  return result
+}
+```
+ 
 ---
 
 ## 8. Reverse Words in a Sentence (Easy)
@@ -220,7 +312,19 @@ learn dsa daily
 ```text
 daily dsa learn
 ```
-
+```js
+function reverseWordinSetance(str){
+  let spilitChar=str.spilit(" ");
+  let start =0;
+  let end=spilitChar.length-1;
+  while(start<end){
+    [spilitChar[start],spilitChar[end]] =[spilitChar[end],spilitChar[start]];
+    start++;
+    end--;
+  };
+  return spilitChar.join(" ")
+}
+```
 ---
 
 ## 9. Capitalize Each Word (Easy)
@@ -247,7 +351,11 @@ heLLo wORld
 ```text
 Hello World
 ```
-
+```js
+function capitalizeFirstLetter(str){
+  return str.spilit(" ").map((m)=>m ?m[0].toUpperCase()+m.slice(1).toLowerCase():w).join(" ")
+}
+```
 ---
 
 ## 10. Count Words (Easy)
@@ -273,6 +381,12 @@ Hello World
 **Sample Output:**
 ```text
 3
+```
+
+```js
+function countThewords(str){
+  return str.spilit(" ").length
+}
 ```
 
 ---
@@ -356,13 +470,39 @@ baba
 a 2
 b 2
 ```
+```js
+function charCount(str) {
+  const freq = new Map();
+  for (let i = 0; i < str.length; i++) {
+    const ch = str[i];
+    freq.set(ch, (freq.get(ch) || 0) + 1);
+  };
+  // if order is not required then time coplexity is O(n)
+  const keys = Array.from(freq.keys()).sort();
+  for (const ch of keys) {
+    console.log(`${ch} ${freq.get(ch)}`);
+  }
+}
+// 2
+function charCount(str) {
+  const freq = {};
+  for (let i = 0; i < str.length; i++) {
+    const ch = str[i];
+    freq[ch] = (freq[ch] || 0) + 1;
+  }
+  // if order is not required then time coplexity is O(n)
+  const keys = Object.keys(freq).sort();
 
+  for (const ch of keys) {
+    console.log(`${ch} ${freq[ch]}`);
+  }
+}
+```
 ---
 
 ## 14. Most Frequent Character (Easy)
 
 **Problem Statement:** Given a string **S**, find the character with maximum frequency. If there is a tie, choose the lexicographically smallest character.
-
 
 **Input Format:**
 
@@ -382,6 +522,27 @@ bbccaaab
 **Sample Output:**
 ```text
 b
+```
+```js
+function mostFreqChar(str) {
+  let bestCount = 0;
+  let bestChar = "";
+  const freq = new Map();
+
+  for (let i = 0; i < str.length; i++) {
+    const ch = str[i];
+    freq.set(ch, (freq.get(ch) || 0) + 1);
+  }
+
+  for (const [ch, count] of freq) {
+    if (count > bestCount || (count === bestCount && (bestChar === "" || ch < bestChar))) {
+      bestCount = count;
+      bestChar = ch;
+    }
+  }
+
+  return bestChar;
+}
 ```
 
 ---
@@ -410,7 +571,24 @@ aabccc
 ```text
 b
 ```
+```js
+function leastFrequntChar(str){
+  let leastChar ="";
+  let leastcount =Infinity; 
+  let freq =new Map();
+  for(let i=0;i<str.length;i++){
+      freq.set(str[i],freq.get(str[i]||0+1))
+    }
+    for(const [ch,count]of freq){
+      if(count < leastcount || (count === leastcount && (leastChar === "" || ch <leastChar))){
+        leastcount = count;
+        leastChar = ch;
+      }
+          }
+           return leastChar;
+  }
 
+```
 ---
 
 ## 16. Check Anagram (Easy)
@@ -438,7 +616,23 @@ silent
 ```text
 YES
 ```
-
+```js
+function checkAnagram(str1,str2){
+  if (str1.length !== str2.length) return "NO";
+  let freq =new Map();
+  for(let i=0;i<str1.length;i++){
+    let ch =str1[i]
+    freq.set(ch,freq.get(ch)||0+1);
+  }
+    for(let i=0;i<str2.length;i++){
+    let ch =str2[i]
+    if (!freq.has(ch)) return "NO";
+    freq.set(ch, freq.get(ch) - 1);
+    if (freq.get(ch) === 0) freq.delete(ch);
+  }
+  return freq.size === 0 ? "YES" : "NO";
+}
+```
 ---
 
 ## 17. Anagram by One Swap (Easy)
@@ -461,7 +655,21 @@ YES
 abcd
 abdc
 ```
+```js
+function canMakeEqualWithOneSwap(A, B) {
+  if (A.length !== B.length) return "NO";
+  if (A === B) return "NO";
+  const diff = [];
+  for (let i = 0; i < A.length; i++) {
+    if (A[i] !== B[i]) diff.push(i);
+    if (diff.length > 2) return "NO";
+  }
+  if (diff.length !== 2) return "NO";
 
+  const [i, j] = diff;
+  return (A[i] === B[j] && A[j] === B[i]) ? "YES" : "NO";
+}
+```
 **Sample Output:**
 ```text
 YES
@@ -494,7 +702,23 @@ add
 ```text
 YES
 ```
+```js
+function isIsomorphic(A, B) {
+  if (A.length !== B.length) return "NO";
+  const aToB = new Map();
+  const bToA = new Map();
+  for (let i = 0; i < A.length; i++) {
+    const a = A[i];
+    const b = B[i];
+    if (aToB.has(a) && aToB.get(a) !== b) return "NO";
+    if (bToA.has(b) && bToA.get(b) !== a) return "NO";
+    aToB.set(a, b);
+    bToA.set(b, a);
+  }
+  return "YES";
+}
 
+```
 ---
 
 ## 19. Check Rotation (Easy)
@@ -517,7 +741,14 @@ YES
 abcd
 cdab
 ```
+```js
+function isRotation(A, B) {
+  if (A.length !== B.length) return "NO";
+  return (A + A).includes(B) ? "YES" : "NO";
+}
+console.log(isRotation("abcd", "cdab"));
 
+```
 **Sample Output:**
 ```text
 YES
@@ -550,7 +781,15 @@ abcde
 ```text
 YES
 ```
-
+```js
+function isSubsequence(S, T) {
+  let i = 0;
+  for (let j = 0; j < T.length && i < S.length; j++) {
+    if (T[j] === S[i]) i++;
+  }
+  return i === S.length ? "YES" : "NO";
+}
+```
 ---
 
 ## 21. Longest Common Prefix (Easy)
@@ -580,7 +819,23 @@ flight
 ```text
 fl
 ```
+```js
+function longestCommonPrefix(arr) {
+  if (!arr.length) return "-1";
+  let prefix = arr[0];
+  for (let i = 1; i < arr.length; i++) {
+    while (!arr[i].startsWith(prefix)) {
+      prefix = prefix.slice(0, -1);
+      if (prefix === "") return "-1";
+    }
+  }
 
+  return prefix;
+}
+
+console.log(longestCommonPrefix(["flower", "flow", "flight"])); // "fl"
+
+```
 ---
 
 ## 22. Remove Adjacent Duplicates (Easy)
@@ -606,6 +861,19 @@ abbaca
 **Sample Output:**
 ```text
 ca
+```
+```js
+function removeAdjacentChar(str) {
+  const stack = [];
+  for (let i = 0; i < str.length; i++) {
+    const ch = str[i];
+    if (stack.length && stack[stack.length - 1] === ch) stack.pop();
+    else stack.push(ch);
+  }
+  const res = stack.join("");
+  return res === "" ? "EMPTY" : res;
+}
+console.log(removeAdjacentChar("abbaca")); // "ca"
 ```
 
 ---
@@ -634,6 +902,20 @@ banana
 ```text
 ban
 ```
+```js
+function removeDuplicate(str){
+  let seen = new Set();
+  result =""
+  for(let i=0;i<str.length;i++){
+    if(!seen.has(str[i])){
+       seen.add(str[i]);
+       result +=str[i];
+    }
+    
+  }
+  return result
+}
+```
 
 ---
 
@@ -661,7 +943,32 @@ a-bC-dEf-ghIj
 ```text
 j-Ih-gfE-dCba
 ```
+```js
+function isAlpha(char) {
+  const code = char.charCodeAt(0);
+  return (code >= 65 && code <= 90) || (code >= 97 && code <= 122);
+}
 
+function reverseOnlyLetter(str) {
+  const arr = str.split("");
+  let left = 0;
+  let right = arr.length - 1;
+
+  while (left < right) {
+    if (isAlpha(arr[left]) && isAlpha(arr[right])) {
+      [arr[left], arr[right]] = [arr[right], arr[left]];
+      left++;
+      right--;
+    } else if (!isAlpha(arr[left])) {
+      left++;
+    } else {
+      right--;
+    }
+  }
+
+  return arr.join("");
+}
+```
 ---
 
 ## 25. Reverse Only Vowels (Easy)
@@ -688,7 +995,31 @@ hello
 ```text
 holle
 ```
+```js
+function isVolves(char){
+  let Voloves = new Set(["a","e","i","o","u"]);
+ return Voloves.has(char.toLowerCase()) 
+}
+function reverseVolves(str){
+  let arr =str.spilit("");
+  let left =0;
+  let right =arr.length -1;
+  while(left<right){
+    if(isVolves(arr[left])&&isVolves(arr[right])){
+      [arr[left],arr[right]]=[arr[right],arr[left]];
+      left++;
+      right--:
+    }else if(!isVolves(str[left])){
+      left ++
+    }else{
+      right --;
+    }
 
+    
+  }
+  return arr.join("")
+}
+```
 ---
 
 ## 26. Run-Length Encode (Easy)
@@ -715,7 +1046,23 @@ aaabbc
 ```text
 a3b2c1
 ```
+```js
+function runLengthEncode(str) {
+  if (str.length === 0) return "";
+  let result = "";
+  let count = 1;
+  for (let i = 1; i <= str.length; i++) {
+    if (i < str.length && str[i] === str[i - 1]) {
+      count++;
+    } else {
+      result += str[i - 1] + count;
+      count = 1;
+    }
+  }
 
+  return result;
+}
+```
 ---
 
 ## 27. Run-Length Decode (Easy)
@@ -769,7 +1116,30 @@ aaabbc
 ```text
 YES
 ```
+```js
+function validateParenthesis(str) {
+  const stack = [];
+  const closeToOpen = {
+    ")": "(",
+    "]": "[",
+    "}": "{",
+  };
 
+  for (let i = 0; i < str.length; i++) {
+    const ch = str[i];
+
+    if (ch === "(" || ch === "[" || ch === "{") {
+      stack.push(ch);
+    } else {
+      if (stack.length === 0) return "NO";
+      const top = stack.pop();
+      if (top !== closeToOpen[ch]) return "NO";
+    }
+  }
+
+  return stack.length === 0 ? "YES" : "NO";
+}
+```
 ---
 
 ## 29. Minimum Adds to Make Parentheses Valid (Easy)
