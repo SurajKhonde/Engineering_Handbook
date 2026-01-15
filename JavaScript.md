@@ -327,7 +327,7 @@ Both behave the same ✅ — so `new Object()` gives no extra power.
 let user = {
   name: "John",
   age: 30,
-  user.likes birds = true
+  "likes birds": true
 }
 user["likes birds"]
 ```
@@ -542,7 +542,7 @@ Pen.prototype.showPrice = function(){
 pen1.showPrice();
 ```
 **Classes**
-```ts
+```js
 class Chair {
     constructor(color, seatHeight, recliningAngle, backSupport, headSupport, padding, armRests, seatSize, isHeightAdjustable, isMovable){
         this.color = color;

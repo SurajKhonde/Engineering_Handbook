@@ -344,3 +344,4 @@ It’s useful to think about API communication in terms of a **request** and **r
 A “cookie” is always an HTTP cookie. The difference is how you use it:
 Web (site) cookies → keep a user logged in on a website and remember preferences.
 API cookies → carry auth/session for API requests (often from a browser SPA) instead of using an Authorization header.
+

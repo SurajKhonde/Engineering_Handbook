@@ -105,7 +105,7 @@ Hello World
 ```
 ```js
 function countVolves(str){
-let volvesFreq=new Set("a","i","o","e","u");
+let volvesFreq=new Set(["a","i","o","e","u"]);
 let count =0
 for(let i<str.length;i++){
   if(volvesFreq.has(str[i])) count ++
@@ -274,8 +274,10 @@ i love dsa
 
 **Sample Output:**
 ```text
+
 i-love-dsa
 ```
+
 ```js
 function replaceSpaceswithDashes(str){
   let result =""
@@ -285,7 +287,7 @@ function replaceSpaceswithDashes(str){
   return result
 }
 ```
- 
+
 ---
 
 ## 8. Reverse Words in a Sentence (Easy)
@@ -351,11 +353,14 @@ heLLo wORld
 ```text
 Hello World
 ```
+
 ```js
+
 function capitalizeFirstLetter(str){
   return str.spilit(" ").map((m)=>m ?m[0].toUpperCase()+m.slice(1).toLowerCase():w).join(" ")
 }
 ```
+
 ---
 
 ## 10. Count Words (Easy)
@@ -364,17 +369,12 @@ function capitalizeFirstLetter(str){
 
 
 **Input Format:**
-
 - One line containing **S**.
-
-
 **Output Format:**
-
 - Print the number of words.
-
-
 **Sample Input:**
 ```text
+
   one   two three  
 ```
 
@@ -415,7 +415,18 @@ aabbcddee
 ```text
 c
 ```
-
+```js
+const firstNonRepeating = function (str) {
+  const freq = new Map();
+  for (const ch of str) {
+    freq.set(ch, (freq.get(ch) || 0) + 1);
+  };
+  for (const ch of str) {
+    if (freq.get(ch) === 1) return ch;
+  }
+  return "-1";
+}; 
+```
 ---
 
 ## 12. First Repeating Character (Easy)
@@ -432,7 +443,6 @@ c
 
 - Print the first repeating character, or `-1`.
 
-
 **Sample Input:**
 ```text
 abca
@@ -443,6 +453,20 @@ abca
 a
 ```
 
+```js
+function firstReaptingChar(str){
+  let freq=new Map();
+  for(const char of str ){
+    freq.set(char,(freq.get(char)||0)+1);
+  };
+  for(const char of str){
+    if(freq.get(char)>1) return char 
+  }
+  return -1
+
+}
+
+```
 ---
 
 ## 13. Character Frequency Table (Easy)
@@ -490,7 +514,7 @@ function charCount(str) {
     const ch = str[i];
     freq[ch] = (freq[ch] || 0) + 1;
   }
-  // if order is not required then time coplexity is O(n)
+  // if order is not required then time coplexity is O(n) just remove sort
   const keys = Object.keys(freq).sort();
 
   for (const ch of keys) {
@@ -577,7 +601,7 @@ function leastFrequntChar(str){
   let leastcount =Infinity; 
   let freq =new Map();
   for(let i=0;i<str.length;i++){
-      freq.set(str[i],freq.get(str[i]||0+1))
+      freq.set(str[i],(freq.get(str[i]||0)+1))
     }
     for(const [ch,count]of freq){
       if(count < leastcount || (count === leastcount && (leastChar === "" || ch <leastChar))){
@@ -655,6 +679,11 @@ function checkAnagram(str1,str2){
 abcd
 abdc
 ```
+
+**Sample Output:**
+```text
+YES
+```
 ```js
 function canMakeEqualWithOneSwap(A, B) {
   if (A.length !== B.length) return "NO";
@@ -670,11 +699,6 @@ function canMakeEqualWithOneSwap(A, B) {
   return (A[i] === B[j] && A[j] === B[i]) ? "YES" : "NO";
 }
 ```
-**Sample Output:**
-```text
-YES
-```
-
 ---
 
 ## 18. Check Isomorphic Strings (Medium)
@@ -717,7 +741,6 @@ function isIsomorphic(A, B) {
   }
   return "YES";
 }
-
 ```
 ---
 
@@ -820,6 +843,9 @@ flight
 fl
 ```
 ```js
+//startsWith means does the big string begin with the smaller string:
+"flower".startsWith("flow") // true   (because "flower" begins with "flow")
+"flow".startsWith("flower") // false  (because "flow" is shorter)
 function longestCommonPrefix(arr) {
   if (!arr.length) return "-1";
   let prefix = arr[0];
@@ -1089,7 +1115,19 @@ a3b2c1
 ```text
 aaabbc
 ```
-
+```js
+function runLengthdecode(str){
+  let result =""
+  for(let i=0;i<str.length;i+=2){
+    let char = str[i];
+    let count =  Number(str[i]);
+    for(k=0;k<count k++){
+      result +=char
+    }
+  }
+return result
+}
+```
 ---
 
 ## 28. Validate Parentheses (Easy)
@@ -1139,6 +1177,25 @@ function validateParenthesis(str) {
 
   return stack.length === 0 ? "YES" : "NO";
 }
+//2 nd only follow YES for one senario {[()]} another sinario it will fail like  ()[]{}
+// Proper rule: [ opened, must close with ] before )
+function validateParenthesis(str) {
+  let left =0;
+  let right= str.length-1;
+    const closeToOpen = {
+    "(":")",
+    "[":"]",
+    "{":"}"
+  };
+while(left <right){
+  if(closeToOpen[str[left]]!==str[right])return "NO";
+  left++
+  right--
+}
+return "YES"
+}
+
+
 ```
 ---
 
@@ -1166,7 +1223,33 @@ function validateParenthesis(str) {
 ```text
 3
 ```
+```js
+function minAddsToMakeValid(str) {
+  let balance = 0; // unmatched '('
+  let adds = 0;    // needed '(' additions
+  for (const ch of str) {
+    if (ch === "(") {
+      balance++;
+    } else { // ')'
+      if (balance > 0) balance--;
+      else adds++; // add one '('
+    }
+  }
+  return adds + balance; // add ')' for leftover '('
+}
 
+```
+
+**Correct logic (greedy)**
+Track:
+balance = how many unmatched '(' you have
+adds = how many '(' you need to add when you see an extra ')'
+Rule:
+If char is '(' → balance++
+If char is ')':
+if balance > 0 → match it → balance--
+else → no '(' to match → must add one '(' → adds++
+At the end, any remaining balance means unmatched '(' → need that many ')' additions.
 ---
 
 ## 30. Longest Valid Parentheses Length (Medium)
