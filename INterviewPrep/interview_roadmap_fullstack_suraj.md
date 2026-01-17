@@ -1,5 +1,5 @@
 # Interview Roadmap (Full‑Stack: JS/TS + React + Node + Redis + BullMQ)
-**Profile:** ~3 years experience • last CTC: 7 LPA (India) • target: mid product/service roles  
+**Profile:** ~3 years experience • last CTC: 9 LPA (India) • target: mid product/service roles  
 **Goal:** Start applying fast while sharpening coding + explanation + interview readiness.
 
 ---

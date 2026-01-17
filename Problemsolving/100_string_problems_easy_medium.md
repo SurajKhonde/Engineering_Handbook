@@ -1479,15 +1479,9 @@ i love dsa
 
 
 **Input Format:**
-
 - One line containing **S**.
-
-
 **Output Format:**
-
 - Print an integer length.
-
-
 **Sample Input:**
 ```text
 abcabcbb
@@ -1497,7 +1491,24 @@ abcabcbb
 ```text
 3
 ```
+**sol**
+```js
+function longestSubWithoutRepeat(str) {
+  let start = 0;
+  let maxLen = 0;
+  const lastSeen = new Map();
 
+  for (let end = 0; end < str.length; end++) {
+    const ch = str[end];
+    if (lastSeen.has(ch) && lastSeen.get(ch) >= start){
+      start = lastSeen.get(ch) + 1;
+    }
+    lastSeen.set(ch, end);
+    maxLen = Math.max(maxLen, end - start + 1);
+  }
+  return maxLen;
+}
+```
 ---
 
 ## 39. Longest Substring With At Most K Distinct Characters (Medium)
@@ -1525,7 +1536,27 @@ araaci
 ```text
 4
 ```
+```js
+function longestSubstringAtMostKDistinct(s, k) {
+  if (k <= 0 || s.length === 0) return 0;
+  let start = 0;
+  let maxLen = 0;
+  const freq = new Map();
 
+  for (let end = 0; end < s.length; end++) {
+    const ch = s[end];
+    freq.set(ch, (freq.get(ch) || 0) + 1);
+    while (freq.size > k) {
+      const leftChar = s[start];
+      freq.set(leftChar, freq.get(leftChar) - 1);
+      if (freq.get(leftChar) === 0) freq.delete(leftChar);
+      start++;
+    }
+    maxLen = Math.max(maxLen, end - start + 1);
+  }
+  return maxLen;
+}
+```
 ---
 
 ## 40. Minimum Window Containing All Characters (Medium)
@@ -1553,7 +1584,48 @@ ABC
 ```text
 4
 ```
+```js
+function minimumWindowContainChar(S, T) {
+  if (!T || T.length === 0 || !S || S.length === 0) return -1;
+  if (T.length > S.length) return -1;
+  const need = new Map();
+  for (const ch of T) need.set(ch, (need.get(ch) || 0) + 1);
 
+  // window counts
+  const window = new Map();
+
+  const required = need.size;
+  let formed = 0;
+  let start = 0;
+  let bestLen = Infinity;
+  let bestL = 0;
+  let bestR = 0;
+
+  for (let end = 0; end < S.length; end++) {
+    const ch = S[end];
+    window.set(ch, (window.get(ch) || 0) + 1);
+    if (need.has(ch) && window.get(ch) === need.get(ch)) {
+      formed++;
+    }
+    while (formed === required) {
+      const winLen = end - start + 1;
+      if (winLen < bestLen) {
+        bestLen = winLen;
+        bestL = start;
+        bestR = end;
+      }
+      const leftChar = S[start];
+      window.set(leftChar, window.get(leftChar) - 1);
+      if (need.has(leftChar) && window.get(leftChar) < need.get(leftChar)) {
+        formed--;
+      }
+      start++;
+    }
+  }
+  return bestLen === Infinity ? -1 : bestLen;
+}
+
+```
 ---
 
 ## 41. All Anagram Start Indices (Medium)
@@ -1578,10 +1650,47 @@ abc
 ```
 
 **Sample Output:**
+
 ```text
 0 6
 ```
 
+```js
+function allAnagramStartIndices(S, P) {
+  const res = [];
+  const n = S.length, k = P.length;
+  if (k === 0 || n < k) return res;
+  const need = new Map();
+  for (const ch of P) need.set(ch, (need.get(ch) || 0) + 1);
+
+  let matched = 0;      
+  const required = need.size;
+
+  let start = 0;
+
+  for (let end = 0; end < n; end++) {
+    const right = S[end];
+    if (need.has(right)) {
+      need.set(right, need.get(right) - 1);
+      if (need.get(right) === 0) matched++;
+    }
+    if (end - start + 1 > k) {
+      const left = S[start];
+      if (need.has(left)) {
+        if (need.get(left) === 0) matched--;
+        need.set(left, need.get(left) + 1);
+      }
+      start++;
+    }
+    if (end - start + 1 === k && matched === required) {
+      res.push(start);
+    }
+  }
+
+  return res;
+}
+
+```
 ---
 
 ## 42. Count Palindromic Substrings (Medium)
