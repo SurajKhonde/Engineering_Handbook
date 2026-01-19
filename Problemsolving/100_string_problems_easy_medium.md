@@ -1277,6 +1277,86 @@ At the end, any remaining balance means unmatched '(' → need that many ')' add
 4
 ```
 
+```js
+function longestValidParentheses(s) {
+  const stack = [-1];
+  let maxLen = 0;
+
+  for (let i = 0; i < s.length; i++) {
+    if (s[i] === "(") {
+      stack.push(i);
+    } else {
+      stack.pop();
+
+      if (stack.length === 0) {
+        stack.push(i);
+      } else {
+        maxLen = Math.max(maxLen, i - stack[stack.length - 1]);
+      }
+    }
+  }
+
+  return maxLen;
+}
+
+```
+
+```md
+# Why do we start the stack with `-1` in Longest Valid Parentheses?
+
+## Core idea
+In the stack solution, we store **indices** (not characters).  
+When we have a valid substring ending at index `i`, its length is:
+
+**length = `i - (index_before_start)`**
+
+So we always need an “index before the start of the current valid block” to calculate length.
+
+---
+
+## Why `-1`?
+`-1` is a **fake base index** meaning:  
+> “the valid substring could start at index `0`, and the index before that is `-1`”.
+
+### Example: `"()"`
+- start: `stack = [-1]`
+- i=0 `'('` → push `0` → `[-1, 0]`
+- i=1 `')'` → pop → `[-1]`
+- valid ends at `1`, stack top is `-1`
+- length = `1 - (-1) = 2` ✅
+
+Without `-1`, after popping the stack would be empty and you couldn’t compute the length for a substring starting at `0`.
+
+---
+
+## Why it also handles leading invalid `)` cleanly
+When we see `)` and there is no matching `(`, the stack becomes empty.
+That `)` breaks validity, so we reset the base to that index.
+
+### Example: `")()"`
+- start: `[-1]`
+- i=0 `')'` → pop → stack empty → push `0`
+  - now base = `0` (last invalid `)`)
+- i=1 `'('` → push `1` → `[0, 1]`
+- i=2 `')'` → pop → `[0]`
+  - length = `2 - 0 = 2` ✅ (substring `"()"`)
+
+So whenever an invalid `)` happens, we store its index as the new base so future lengths are measured after it.
+
+---
+
+## What the stack contains (rule)
+- indices of **unmatched `(`**
+- plus a **base index** at the bottom:
+  - initially `-1` (before string)
+  - later it can become an index of the last invalid `)` (reset point)
+
+---
+
+## One-line memory hook
+**`-1` is the “imaginary boundary before the string” so length math works even when the valid substring starts at index 0.**
+```
+
 ---
 
 ## 31. Count Occurrences of a Substring (Easy)
@@ -1305,6 +1385,25 @@ aa
 3
 ```
 
+**solution**
+
+```js
+function countOccurrencesIndexOf(S, P) {
+  if (P.length === 0) return 0;
+  let count = 0;
+  let pos = 0;
+
+  while (true) {
+    const found = S.indexOf(P, pos);
+    if (found === -1) break;
+    count++;
+    pos = found + 1; // +1 allows overlapping
+  }
+
+  return count;
+}
+
+```
 ---
 
 ## 32. Find First Index of Substring (Easy)
@@ -1332,7 +1431,11 @@ ll
 ```text
 2
 ```
-
+```js
+function findFirstIndexSubStr(str, tar) {
+  return str.indexOf(tar);
+}
+```
 ---
 
 ## 33. Replace All Occurrences (Easy)
@@ -1361,6 +1464,34 @@ baz
 ```text
 baz bar baz
 ```
+**solution**
+```js
+function replaceAllOccurance(S, P, R) {
+  if (P.length === 0) return S;
+
+  let result = "";
+  let i = 0;
+
+  while (i < S.length) {
+    if (S.startsWith(P, i)) {
+      result += R;
+      i += P.length;
+    } else {
+      result += S[i];
+      i++;
+    }
+  }
+
+  return result;
+}
+// build in method 
+function replaceAllOccurance(S, P, R) {
+  return S.split(P).join(R);
+}
+
+//“Cut the string S wherever the substring P appears, and return an array of the pieces between those matches.”
+```
+>[!note]Cut the string S wherever the substring P appears, and return an array of the pieces between those matches.
 
 ---
 
@@ -1390,6 +1521,33 @@ abc
 dab
 ```
 
+**solution**
+```js
+
+function removeAllOccurrences(S, P) {
+  if (P.length === 0) return S;
+
+  const stack = [];
+  const m = P.length;
+
+  for (const ch of S) {
+    stack.push(ch);
+    if (stack.length >= m) {
+      let match = true;
+      for (let j = 0; j < m; j++) {
+        if (stack[stack.length - m + j] !== P[j]) {
+          match = false;
+          break;
+        }
+      }
+      if (match) stack.length -= m; // pop m chars
+    }
+  }
+
+  const ans = stack.join("");
+  return ans.length === 0 ? "EMPTY" : ans;
+}
+```
 ---
 
 ## 35. Check Pangram (Easy)
@@ -1415,6 +1573,19 @@ The quick brown fox jumps over the lazy dog
 **Sample Output:**
 ```text
 YES
+```
+
+```js
+function isPangram(S) {
+  const seen = new Set();
+
+  for (const ch of S.toLowerCase()) {
+    if (ch >= "a" && ch <= "z") seen.add(ch);
+  }
+
+  return seen.size === 26 ? "YES" : "NO";
+};
+
 ```
 
 ---
@@ -1470,7 +1641,11 @@ YES
 ```text
 i love dsa
 ```
-
+```js
+function normalizeSpaces(str) {
+  return str.trim().replace(/\s+/g, " ");
+};
+```
 ---
 
 ## 38. Longest Substring Without Repeating Characters (Medium)
@@ -1590,8 +1765,6 @@ function minimumWindowContainChar(S, T) {
   if (T.length > S.length) return -1;
   const need = new Map();
   for (const ch of T) need.set(ch, (need.get(ch) || 0) + 1);
-
-  // window counts
   const window = new Map();
 
   const required = need.size;
@@ -1772,7 +1945,25 @@ abc
 ```text
 4
 ```
+**solution**
 
+```js
+function minDeletionsToMakeAnagram(A, B) {
+  const freq = Array(26).fill(0);
+
+  for (const ch of A) freq[ch.charCodeAt(0) - 97]++;
+  for (const ch of B) freq[ch.charCodeAt(0) - 97]--;
+
+  let deletions = 0;
+  for (const x of freq) deletions += Math.abs(x);
+
+  return deletions;
+}
+
+// Example
+console.log(minDeletionsToMakeAnagram("cde", "abc")); // 4
+
+```
 ---
 
 ## 45. Sort Characters by Frequency (Medium)
@@ -1800,6 +1991,36 @@ tree
 eert
 ```
 
+```js
+function sortCharbyFreq(str) {
+  const freq = new Map();
+
+  for (const ch of str) {
+    freq.set(ch, (freq.get(ch) || 0) + 1);
+  }
+
+  const arr = Array.from(freq.entries());
+
+  arr.sort((a, b) => {
+    const [ch1, c1] = a;
+    const [ch2, c2] = b;
+
+    if (c2 !== c1) return c2 - c1;      
+    return ch1.localeCompare(ch2);          
+  });
+
+  let result = "";
+  for (const [ch, count] of arr) {
+    result += ch.repeat(count);
+  }
+
+  return result;
+}
+
+// Example
+console.log(sortCharbyFreq("tree")); // "eert"
+
+```
 ---
 
 ## 46. Caesar Cipher Encode (Easy)
@@ -1826,6 +2047,26 @@ xyz
 **Sample Output:**
 ```text
 abc
+```
+**Solution**
+
+```js
+function CaesarCipherEncode(str, k) {
+  k = k % 26; // handle large shifts
+  let result = "";
+
+  for (const ch of str) {
+    const code = ch.charCodeAt(0) - 97;          // 0..25
+    const shifted = (code + k) % 26;             // wrap
+    result += String.fromCharCode(shifted + 97); // back to 'a'..'z'
+  }
+
+  return result;
+}
+
+// Example
+console.log(CaesarCipherEncode("xyz", 3)); // "abc"
+
 ```
 
 ---
@@ -1856,6 +2097,23 @@ abc
 xyz
 ```
 
+```js
+function CaesarCipherDecode(str, k) {
+  k = k % 26;
+  let result = "";
+
+  for (const ch of str) {
+    const code = ch.charCodeAt(0) - 97;          // 0..25
+    const shifted = (code - k + 26) % 26;        // +26 to avoid negative
+    result += String.fromCharCode(shifted + 97); // back to 'a'..'z'
+  }
+
+  return result;
+}
+
+// Example
+console.log(CaesarCipherDecode("abc", 3)); // "xyz"
+```
 ---
 
 ## 48. Add Two Binary Strings (Medium)
@@ -1912,6 +2170,24 @@ xyz
 1
 ```
 
+```js
+
+function versionCompare(A, B) {
+  const a = A.split(".");
+  const b = B.split(".");
+  const n = Math.max(a.length, b.length);
+
+  for (let i = 0; i < n; i++) {
+    const x = i < a.length ? Number(a[i]) : 0;
+    const y = i < b.length ? Number(b[i]) : 0;
+
+    if (x > y) return 1;
+    if (x < y) return -1;
+  }
+
+  return 0;
+}
+```
 ---
 
 ## 50. Validate IPv4 Address (Medium)
@@ -1998,7 +2274,7 @@ accaccacc
 ## 53. Edit Distance (Medium)
 
 **Problem Statement:** Given strings **A** and **B**, compute the minimum number of operations to convert **A** to **B**. Allowed operations: insert, delete, replace one character.
-
+>[!warning]this is solved by Dp not now preffered 
 
 **Input Format:**
 
@@ -2021,6 +2297,20 @@ sitting
 3
 ```
 
+```js
+function editDist(A,B){
+  if(!A.length||!B.length) return "0"
+  let charCount =new Map();
+  let editDist =0
+ for(let char of A)charCount.set(char,(charCount.get(char)||0)+1) 
+ for(let char of B){
+if(charCount.has(char)&& charCount.get(char)>0) charCount.set(char,(charCount.get(char)||0)-1)
+else editDist ++
+}
+return editDist
+}
+
+```
 ---
 
 ## 54. Longest Common Subsequence Length (Medium)
@@ -2076,7 +2366,29 @@ ace
 ```text
 1219
 ```
+```js
+function removeKdigits(S, K) {
+  const stack = [];
 
+  for (const ch of S) {
+    while (K > 0 && stack.length > 0 && stack[stack.length - 1] > ch) {
+      stack.pop();
+      K--;
+    }
+    stack.push(ch);
+  }
+  while (K > 0 && stack.length > 0) {
+    stack.pop();
+    K--;
+  }
+
+  let res = stack.join("").replace(/^0+/, "");
+  return res === "" ? "0" : res;
+}
+
+console.log(removeKdigits("1432219", 3)); // "1219"
+
+```
 ---
 
 ## 56. Roman to Integer (Medium)
@@ -2103,7 +2415,22 @@ MCMXCIV
 ```text
 1994
 ```
-
+```js
+function romanToInt(S) {
+  const val = {
+    I: 1, V: 5, X: 10, L: 50,
+    C: 100, D: 500, M: 1000
+  };
+  let total = 0;
+  for (let i = 0; i < S.length; i++) {
+    const curr = val[S[i]];
+    const next = i + 1 < S.length ? val[S[i + 1]] : 0;
+    if (curr < next) total -= curr;
+    else total += curr;
+  }
+  return total;
+}
+```
 ---
 
 ## 57. Integer to Roman (Medium)
@@ -2131,6 +2458,26 @@ MCMXCIV
 LVIII
 ```
 
+```js
+function intToRoman(num) {
+  const values = [1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1];
+  const symbols = ["M",  "CM","D", "CD","C","XC","L","XL","X","IX","V","IV","I"];
+
+  let res = "";
+
+  for (let i = 0; i < values.length; i++) {
+    while (num >= values[i]) {
+      num -= values[i];
+      res += symbols[i];
+    }
+  }
+
+  return res;
+}
+
+console.log(intToRoman(58)); // "LVIII"
+
+```
 ---
 
 ## 58. Check If Any Permutation Exists as Substring (Medium)
