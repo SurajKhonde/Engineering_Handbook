@@ -314,22 +314,24 @@ abcabcbb
 3
 **solution**
 ```js
-function longestSubString(str){
-    let seen =new Set();
-    let start=0
-    let maxSize = 0 ;
-    for (let i=0;i<str.length;i++){
-        while(seen.has(str[i])){
-            seen.delete(str[start])
-            start ++;
-        }else {
-            seen.add(str[i]);
-            maxSize=Math.max(maxSize,i-start + 1);
-        }
-    }
-    return maxSize;
+function longestSubString(str) {
+    let seen = new Set();
+    let start = 0;
+    let maxSize = 0;
 
+    for (let i = 0; i < str.length; i++) {
+        while (seen.has(str[i])) {
+            seen.delete(str[start]);
+            start++;
+        }
+
+        seen.add(str[i]);
+        maxSize = Math.max(maxSize, i - start + 1);
+    }
+
+    return maxSize;
 }
+
 ```
 ------------------------------------------------------------------------
 
