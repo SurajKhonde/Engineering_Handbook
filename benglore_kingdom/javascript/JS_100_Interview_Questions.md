@@ -181,10 +181,11 @@ Math.abs(0.1 + 0.2 - 0.3) < Number.EPSILON // true
 **Q10. What is variable hoisting?**
 
 JS moves declarations (not initializations) to top of their scope before executing.
+
 Hoisting is JavaScript's behavior during the memory creation phase where declarations are registered before code execution begins. The behavior depends on the type of declaration:
 
-var is hoisted and initialized with undefined.
-let and const are hoisted but remain in the Temporal Dead Zone until their declaration is reached.
+- var is hoisted and initialized with undefined.
+- let and const are hoisted but remain in the - Temporal Dead Zone until their declaration is reached.
 Function declarations are fully hoisted and can be called before their declaration line.
 
 ```js
@@ -202,6 +203,9 @@ var greet = function() { }; // only var declaration hoisted, not the function
 ```
 
 ---
+
+what is scope ? 
+Scope determines where a variable can be accessed in your code.
 
 **Q11. What is Temporal Dead Zone (TDZ)?**
 
